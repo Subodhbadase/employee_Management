@@ -5,23 +5,26 @@ import { NewTask } from "./NewTask";
 import { CompletedTask } from "./completedTask";
 import { FailTask } from "./FailTask";
 
-export const TaskList = ({data}) => {
+export const TaskList = ({ data }) => {
     console.log(data)
-    return(
+    return (
         <div id="taskList" className=" flex overflow-x-auto gap-5  w-full h-[50%] mt-10 " >
-            {data.tasks.map((elem) => {
-                if(elem.active){
-                    return <AcceptedTask data={elem}></AcceptedTask>
+            {data.tasks.map((elem, idx) => {
+                if (elem.active) {
+                    if (elem.newTask) {
+                        return <NewTask data={elem} key={idx}></NewTask>
+                    }
+                    return <AcceptedTask data={elem} key={idx}></AcceptedTask>
                 }
-                if(elem.completed){
-                    return <CompletedTask data={elem}></CompletedTask>
+                if (elem.completed) {
+                    return <CompletedTask data={elem} key={idx}></CompletedTask>
                 }
-                if(elem.failed){
-                    return <FailTask data={elem}></FailTask>
+                if (elem.failed) {
+                    return <FailTask data={elem} key={idx}></FailTask>
                 }
-                if(elem.newTask && elem.active){
-                    return <NewTask data={elem}></NewTask>
-                }
+                // if(elem.newTask && elem.active){
+                //     return <NewTask data={elem}></NewTask>
+                // }
             }
             )}
         </div>
