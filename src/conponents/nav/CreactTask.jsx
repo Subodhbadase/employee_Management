@@ -1,9 +1,10 @@
 import React from "react";
-import { useState } from "react";
-import { NewTask } from "../Tasks/NewTask";
-
+import { useContext, useState } from "react";
+import { AuthContext } from "../../context/AuthProvider";
+import { setLocalStorage } from "../../utils/LocalStorage";
 
 export const CreactTask = () => {
+    const [userData, setUserData] = useContext(AuthContext);
 
     const [taskTital, setTaskTital] = useState('');
     const [date, setDate] = useState('');
@@ -11,29 +12,70 @@ export const CreactTask = () => {
     const [category, setCategory] = useState('');
     const [decription, setDecription] = useState('');
 
-    const [newtask, setNewTask] = useState({});
-
     const submitHandler = (e) => {
-        e.preventDefault()
-        setNewTask({ taskTital, date, assig, category, decription, active: true, completed: false, newTask: true, failed: false })
+        e.preventDefault();
 
-        const data = JSON.parse(localStorage.getItem('Employee'))
+        const taskData = {
+            taskTital,
+            taskDate: date,
+            taskDescription: decription,
+            category,
+            active: true,
+            completed: false,
+            newTask: true,
+            failed: false,
+        };
 
-        data.forEach((elem) => {
-            if (assig == elem.firstName) {
-                elem.tasks.push(newtask)
+        const employees = userData?.employees ? [...userData.employees] : [];
+
+        const updatedEmployees = employees.map((elem) => {
+            if (assig.trim().toLowerCase() === elem.firstName.toLowerCase()) {
+                return {
+                    ...elem,
+                    tasks: [...elem.tasks, taskData],
+                    taskNumbers: {
+                        ...elem.taskNumbers,
+                        active: elem.taskNumbers.active + 1,
+                        newTask: elem.taskNumbers.newTask + 1,
+                    },
+                };
             }
-        })
+            return elem;
+        });
 
-        localStorage.setItem('Employee', JSON.stringify(data))
+        const updatedEmployee = updatedEmployees.find(
+            (elem) => assig.trim().toLowerCase() === elem.firstName.toLowerCase()
+        );
+
+        const updatedUserData = userData
+            ? { ...userData, employees: updatedEmployees }
+            : { employees: updatedEmployees, admin: null };
+
+        setUserData(updatedUserData);
+        // console.log(updatedUserData)
+        setLocalStorage(updatedUserData.employees, updatedUserData.admin);
+
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || 'null');
+        if (loggedInUser?.role === 'employee' && updatedEmployee) {
+            const currentEmployeeName = loggedInUser.data?.firstName?.toLowerCase();
+            if (currentEmployeeName === assig.trim().toLowerCase()) {
+                const updatedLoggedInUser = {
+                    ...loggedInUser,
+                    data: updatedEmployee,
+                };
+                localStorage.setItem('loggedInUser', JSON.stringify(updatedLoggedInUser));
+                window.dispatchEvent(new CustomEvent('employee-data-updated', {
+                    detail: updatedEmployee,
+                }));
+            }
+        }
 
         setTaskTital('');
         setDate('');
         setAssig('');
         setCategory('');
         setDecription('');
-
-    }
+    };
 
     return (
         <div className="bg-[#1c1c1c] mt-10 p-10 rounded">
