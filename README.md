@@ -1,4 +1,4 @@
-# React Clone App
+# Employee Management App
 
 ![Project Logo](https://via.placeholder.com/400x120?text=Project+Logo)
 
@@ -230,7 +230,7 @@ Navigate to the URL shown in the terminal, typically `http://localhost:5173`.
 ## Project Structure
 
 ```
-clone app/
+app/
 ├─ src/
 │  ├─ conponents/
 │  │  ├─ Auth/
